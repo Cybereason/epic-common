@@ -1,8 +1,5 @@
-import sys
 import copy
 import functools
-import threading
-import contextlib
 
 
 def check(predicate, message_or_exception_instance="check failed"):
