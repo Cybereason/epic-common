@@ -23,8 +23,6 @@ __all__ = [
 def unique(items: Iterable[H], key: None = None) -> Iterable[H]: ...
 @overload
 def unique(items: Iterable[T], key: Callable[[T], Hashable]) -> Iterable[T]: ...
-
-
 def unique(items, key=None):
     """
     Iterate over unique items, maintaining the order of the elements.
@@ -134,8 +132,6 @@ class SizedIterable(Generic[T_co]):
 def maybe_sized_iter(items: Iterable[T], length_object: Sized) -> SizedIterable[T]: ...
 @overload
 def maybe_sized_iter(items: Iterable[T], length_object=None) -> Iterable[T] | SizedIterable[T]: ...
-
-
 def maybe_sized_iter(items, length_object=None):
     """
     Convert an iterable into a SizedIterable, if possible.
@@ -192,8 +188,6 @@ def consume(items: Iterable) -> None:
 def map_with_retry(func: Callable[[T], S], items: Iterable[T], tries: int, default: S) -> Iterable[S]: ...
 @overload
 def map_with_retry(func: Callable[[T], S], items: Iterable[T], tries: int = 3) -> Iterable[S]: ...
-
-
 def map_with_retry(func: Callable[[T], S], items: Iterable[T], tries: int = 3, default=NO_DEFAULT) -> Iterable[S]:
     """
     Map a function over items, but try again if an exception is raised by the function.

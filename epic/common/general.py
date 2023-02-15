@@ -1,22 +1,24 @@
 import math
 import logging
+import numbers
 import functools
 
 from io import IOBase
-from numbers import Number
 from types import MappingProxyType
 from collections import defaultdict
-from typing import TypeVar, TypeGuard, Generic, ParamSpec, Concatenate
-from collections.abc import Iterable, ByteString, Callable, Hashable, Mapping
+from collections.abc import Iterable, Callable, Hashable, Mapping
+from typing import TypeVar, TypeGuard, Generic, ParamSpec, Concatenate, overload, cast
 
+B = TypeVar('B', bound=bytes | bytearray)
+C_contra = TypeVar('C_contra', bound=type, contravariant=True)
+P = ParamSpec('P')
+R = TypeVar('R', bound=numbers.Real)
+S = TypeVar('S')
 T = TypeVar('T')
 T_co = TypeVar('T_co', covariant=True)
-C_contra = TypeVar('C_contra', bound=type, contravariant=True)
-S = TypeVar('S')
-P = ParamSpec('P')
 
 __all__ = [
-    'is_iterable', 'to_list', 'to_bytes', 'to_number', 'classproperty',
+    'is_iterable', 'to_iterable', 'to_list', 'to_bytes', 'to_number', 'classproperty',
     'indexer_dict', 'hash_content', 'human_readable', 'get_single',
     'pass_none', 'coalesce',
 ]
@@ -26,7 +28,20 @@ def is_iterable(obj) -> TypeGuard[Iterable]:
     """
     Test whether an object is iterable, but NOT a string or a bytes instance.
     """
-    return isinstance(obj, Iterable) and not isinstance(obj, str | ByteString)
+    return isinstance(obj, Iterable) and not isinstance(obj, str | bytes | bytearray)
+
+
+def to_iterable(obj: T | Iterable[T]) -> Iterable[T]:
+    """
+    Convert an object to an iterable.
+
+    Strings, bytes, bytearrays and Mappings are treated as single objects. For those types of
+    inputs, a tuple of length 1 is returned.
+    """
+    # Mappings need special handling since iterating over them means only iterating over the keys
+    if is_iterable(obj) and not isinstance(obj, Mapping):
+        return obj
+    return cast(T, obj),
 
 
 def to_list(obj: T | Iterable[T]) -> list[T]:
@@ -34,35 +49,40 @@ def to_list(obj: T | Iterable[T]) -> list[T]:
     Convert an object to a list.
 
     - If already a list, the object is returned as is; no new list is created.
-    - If a single item (including a string, a bytes or a dictionary), a list of
+    - If a single item (including a string, a bytes or a Mapping), a list of
       length 1 containing the object is returned.
     - If an iterable, the object is converted to a list.
     """
-    # Avoid making a new list
-    if isinstance(obj, list):
-        return obj
-    # Dictionaries need special handling since converting them to a list will return only the keys
-    if not is_iterable(obj) or isinstance(obj, dict):
-        return [obj]
-    return list(obj)
+    # Avoid making a new list if already given a list
+    return obj if isinstance(obj, list) else list(to_iterable(obj))
 
 
-def to_bytes(obj, encoding: str = 'utf-8', errors: str = 'replace') -> ByteString:
+@overload
+def to_bytes(obj: B, encoding: str = 'utf-8', errors: str = 'replace') -> B: ...
+@overload
+def to_bytes(obj, encoding: str = 'utf-8', errors: str = 'replace') -> bytes: ...
+def to_bytes(obj, encoding='utf-8', errors='replace'):
     """
-    Convert an object to a byte sequence - either a bytes, a bytearray or a memoryview.
+    Convert an object to a byte sequence - either a bytes or a bytearray.
     """
-    if isinstance(obj, ByteString):
+    if isinstance(obj, bytes | bytearray):
         return obj
+    if isinstance(obj, memoryview):
+        return obj.tobytes()
     if not isinstance(obj, str):
         obj = str(obj)
     return obj.encode(encoding, errors=errors)
 
 
-def to_number(obj) -> Number:
+@overload
+def to_number(obj: R) -> R: ...
+@overload
+def to_number(obj) -> numbers.Real: ...
+def to_number(obj):
     """
     Convert an object to a number.
     """
-    if isinstance(obj, Number):
+    if isinstance(obj, numbers.Real):
         return obj
     try:
         return int(obj)
@@ -106,7 +126,7 @@ def indexer_dict() -> defaultdict[Hashable, int]:
     -------
     collections.defaultdict
     """
-    dd = defaultdict()
+    dd = defaultdict[Hashable, int]()
     dd.default_factory = dd.__len__
     return dd
 
