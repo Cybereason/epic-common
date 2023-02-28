@@ -65,8 +65,7 @@ class IterableQueue(Generic[T]):
             if self._no_more_input.is_set():
                 break
             try:
-                # Never use block=True. That's just asking for trouble...
-                self.queue.put(item, timeout=self.interval, block=False)
+                self.queue.put(item, timeout=self.interval)
                 break
             except queue.Full:
                 continue
@@ -81,8 +80,7 @@ class IterableQueue(Generic[T]):
             # then sets the event, all before we check the event.
             no_more_input = self._no_more_input.is_set()
             try:
-                # Never use block=True. That's just asking for trouble...
-                yield self.queue.get(timeout=self.interval, block=False)
+                yield self.queue.get(timeout=self.interval)
             except queue.Empty:
                 # If the queue is empty and no more input is expected, we're done here
                 if no_more_input:
