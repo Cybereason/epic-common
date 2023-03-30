@@ -109,21 +109,35 @@ def writef(data: bytes | bytearray, filename: GeneralizedPath) -> None:
     PathGeneralizer.from_path(filename).write(data, "wb")
 
 
-def execfile(filename: GeneralizedPath) -> None:
+def execfile(filename: GeneralizedPath, global_vars=None, local_vars=None) -> None:
     """
-    Execute the contents of a file.
+    Execute the code in the given file with the given global and local variables.
 
     Parameters
     ----------
     filename : str or PathGeneralizer
-        The path of the file.
+        The path to the file to execute.
         Can also be a path to a remote resource (see PathGeneralizer).
+    global_vars : dict, optional
+        A dictionary of global variables to be used in the execution context.
+        Default is an empty dictionary.
+    local_vars : dict, optional
+        A dictionary of local variables to be used in the execution context.
+        Defaults to the global variables.
 
     Returns
     -------
     None
     """
-    exec(PathGeneralizer.from_path(filename).read("r"))
+    if global_vars is None:
+        global_vars = {}
+    global_vars.update({
+        "__name__": "__main__",
+        "__file__": filename
+    })
+    contents = PathGeneralizer.from_path(filename).read("rb")
+    compiled_code = compile(contents, filename, "exec")
+    exec(compiled_code, global_vars, local_vars)
 
 
 def iterlines(filename: GeneralizedPath, ignore_comments: bool = True) -> Iterable[str]:
