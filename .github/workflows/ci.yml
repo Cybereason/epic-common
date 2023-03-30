@@ -42,7 +42,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
       - name: Build, install and test
-        timeout-minutes: 2
+        timeout-minutes: 10
         shell: bash
         run: ./ci.sh
         continue-on-error: ${{ matrix.flag-ignore-failure }}
