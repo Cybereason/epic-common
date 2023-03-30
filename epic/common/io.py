@@ -129,14 +129,15 @@ def execfile(filename: GeneralizedPath, global_vars=None, local_vars=None) -> No
     -------
     None
     """
+    path_str = filename.path if isinstance(filename, PathGeneralizer) else str(filename)
     if global_vars is None:
         global_vars = {}
     global_vars.update({
         "__name__": "__main__",
-        "__file__": filename
+        "__file__": path_str,
     })
     contents = PathGeneralizer.from_path(filename).read("rb")
-    compiled_code = compile(contents, filename, "exec")
+    compiled_code = compile(contents, path_str, "exec")
     exec(compiled_code, global_vars, local_vars)
 
 
