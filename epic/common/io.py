@@ -109,7 +109,7 @@ def writef(data: bytes | bytearray, filename: GeneralizedPath) -> None:
     PathGeneralizer.from_path(filename).write(data, "wb")
 
 
-def execfile(filename: GeneralizedPath, global_vars=None, local_vars=None) -> None:
+def execfile(filename: GeneralizedPath, global_vars: dict | None = None, local_vars: dict | None = None, /) -> None:
     """
     Execute the code in the given file with the given global and local variables.
 
@@ -118,9 +118,11 @@ def execfile(filename: GeneralizedPath, global_vars=None, local_vars=None) -> No
     filename : str or PathGeneralizer
         The path to the file to execute.
         Can also be a path to a remote resource (see PathGeneralizer).
+
     global_vars : dict, optional
         A dictionary of global variables to be used in the execution context.
         Default is an empty dictionary.
+
     local_vars : dict, optional
         A dictionary of local variables to be used in the execution context.
         Defaults to the global variables.
@@ -132,10 +134,6 @@ def execfile(filename: GeneralizedPath, global_vars=None, local_vars=None) -> No
     path_str = filename.path if isinstance(filename, PathGeneralizer) else str(filename)
     if global_vars is None:
         global_vars = {}
-    global_vars.update({
-        "__name__": "__main__",
-        "__file__": path_str,
-    })
     contents = PathGeneralizer.from_path(filename).read("rb")
     compiled_code = compile(contents, path_str, "exec")
     exec(compiled_code, global_vars, local_vars)
