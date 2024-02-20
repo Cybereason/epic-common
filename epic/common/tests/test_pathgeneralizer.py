@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from pathlib import Path
 from google.cloud import storage
 
 from epic.common.pathgeneralizer import PathGeneralizer, FileSystemPath, GoogleCloudStoragePath
@@ -12,6 +13,7 @@ class TestPathGeneralizer:
         assert isinstance(PathGeneralizer.from_path("/tmp/path/mydata"), FileSystemPath)
         assert isinstance(PathGeneralizer.from_path("/Users/joe/Music"), FileSystemPath)
         assert isinstance(PathGeneralizer.from_path("README.md"), FileSystemPath)
+        assert isinstance(PathGeneralizer.from_path(Path("README.md")), FileSystemPath)
         assert isinstance(PathGeneralizer.from_path("gs://gcs-bucket/path"), GoogleCloudStoragePath)
         assert isinstance(PathGeneralizer.from_path(PathGeneralizer.from_path("file")), FileSystemPath)
         assert isinstance(PathGeneralizer.from_path(PathGeneralizer.from_path("gs://bucket/x")), GoogleCloudStoragePath)

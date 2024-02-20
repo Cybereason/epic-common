@@ -2,10 +2,11 @@ import inspect
 from types import UnionType
 from decorator import decorator
 from collections.abc import Callable
-from typing import TypeVar, ParamSpec
+from typing import TypeVar, TypeAlias
 
 
-TypeOrTypes = type | tuple[type, ...] | UnionType
+C = TypeVar('C', bound=Callable)
+TypeOrTypes: TypeAlias = type | tuple[type, ...] | UnionType
 
 
 def assert_type(obj, type_or_types: TypeOrTypes, name: str | None = None) -> None:
@@ -49,11 +50,7 @@ def assert_type(obj, type_or_types: TypeOrTypes, name: str | None = None) -> Non
         raise TypeError(f"{obj_msg} must be {type_msg}; got {type(obj).__name__}.")
 
 
-T = TypeVar('T')
-P = ParamSpec('P')
-
-
-def assert_types(**expected_types: TypeOrTypes) -> Callable[[Callable[P, T]], Callable[P, T]]:
+def assert_types(**expected_types: TypeOrTypes) -> Callable[[C], C]:
     """
     A decorator factory which asserts the types of arguments given to a function.
 
@@ -79,7 +76,7 @@ def assert_types(**expected_types: TypeOrTypes) -> Callable[[Callable[P, T]], Ca
     ...   # can safely assume `x` is an int and `y` is either a float or None
     ...   ...
     """
-    def type_asserter(func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+    def type_asserter(func, *args, **kwargs):
         call_args = inspect.signature(func).bind(*args, **kwargs).arguments
         for name, expected_type in expected_types.items():
             if name not in call_args:
@@ -87,4 +84,3 @@ def assert_types(**expected_types: TypeOrTypes) -> Callable[[Callable[P, T]], Ca
             assert_type(call_args[name], expected_type, name)
         return func(*args, **kwargs)
     return decorator(type_asserter)
-

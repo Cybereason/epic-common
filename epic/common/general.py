@@ -58,9 +58,11 @@ def to_list(obj: T | Iterable[T]) -> list[T]:
 
 
 @overload
-def to_bytes(obj: B, encoding: str = 'utf-8', errors: str = 'replace') -> B: ...
+def to_bytes(obj: B, encoding: str = ..., errors: str = ...) -> B: ...
 @overload
-def to_bytes(obj, encoding: str = 'utf-8', errors: str = 'replace') -> bytes: ...
+def to_bytes(obj, encoding: str = ..., errors: str = ...) -> bytes: ...
+
+
 def to_bytes(obj, encoding='utf-8', errors='replace'):
     """
     Convert an object to a byte sequence - either a bytes or a bytearray.
@@ -78,6 +80,8 @@ def to_bytes(obj, encoding='utf-8', errors='replace'):
 def to_number(obj: R) -> R: ...
 @overload
 def to_number(obj) -> numbers.Real: ...
+
+
 def to_number(obj):
     """
     Convert an object to a number.

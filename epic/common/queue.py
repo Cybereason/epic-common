@@ -4,11 +4,11 @@ import multiprocessing as mp
 
 from collections.abc import Iterator
 from multiprocessing.managers import SyncManager
-from typing import Literal, TypeVar, Generic, ClassVar
+from typing import Literal, TypeVar, Generic, ClassVar, TypeAlias
 
 
 T = TypeVar("T")
-Backend = Literal["multiprocessing", "threading"]
+Backend: TypeAlias = Literal["multiprocessing", "threading"]
 
 
 class IterableQueue(Generic[T]):
@@ -22,7 +22,7 @@ class IterableQueue(Generic[T]):
     Parameters
     ----------
     backend : {'multiprocessing', 'threading'}
-        determines the type of queue this IterableQueue uses.
+        Determines the type of queue this IterableQueue uses.
 
     maxsize : int, default 0
         Maximum size of the queue. If reached, the queue will block on input.

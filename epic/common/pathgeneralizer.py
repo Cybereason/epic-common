@@ -2,17 +2,18 @@ import os
 import re
 import shutil
 
-from typing import Union, TypeVar, IO, Literal, get_args
+from pathlib import Path
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager, AbstractContextManager
+from typing import Union, TypeVar, IO, Literal, get_args, TypeAlias
 
 from .importguard import ImportGuard
 
 
 PG = TypeVar('PG', bound="PathGeneralizer")
-GeneralizedPath = Union[str, "PathGeneralizer"]
+GeneralizedPath: TypeAlias = Union[str, Path, "PathGeneralizer"]
 
-_ProxyMode = Literal['r', 'w', 'rw']
+_ProxyMode: TypeAlias = Literal['r', 'w', 'rw']
 
 
 class PathGeneralizer(metaclass=ABCMeta):
@@ -33,8 +34,8 @@ class PathGeneralizer(metaclass=ABCMeta):
 
         Parameters
         ----------
-        path : str or PathGeneralizer
-            If a string, it is the path to the generalized file.
+        path : str, pathlib.Path or PathGeneralizer
+            If a string or a Path object, it is the path to the generalized file.
             If a PathGeneralizer, it is returned as is.
 
         Returns
@@ -49,6 +50,8 @@ class PathGeneralizer(metaclass=ABCMeta):
         """
         if isinstance(path, PathGeneralizer):
             return path
+        if isinstance(path, Path):
+            path = str(path)
         for sc in cls.subclasses:
             if sc._supports(path):
                 return sc(path)
@@ -96,13 +99,13 @@ class PathGeneralizer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def copy_to(self, local_path: str) -> None:
+    def copy_to(self, local_path: str | Path) -> None:
         """
         Read the contents of the file at the generalized path and write them to a local path.
 
         Parameters
         ----------
-        local_path : str
+        local_path : str or pathlib.Path
             An actual valid path on the local file system (note: a `PathGeneralizer` is not accepted here)
 
         Returns
@@ -112,13 +115,13 @@ class PathGeneralizer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def copy_from(self, local_path: str) -> None:
+    def copy_from(self, local_path: str | Path) -> None:
         """
         Read contents from a local path and write them to a file at the generalized path.
 
         Parameters
         ----------
-        local_path : str
+        local_path : str or pathlib.Path
             An actual valid path on the local file system (note: a `PathGeneralizer` is not accepted here)
 
         Returns
@@ -281,11 +284,11 @@ class GoogleCloudStoragePath(PathGeneralizer):
     def write(self, data: str | bytes, mode: str) -> None:
         self._gs_blob().upload_from_string(data)
 
-    def copy_to(self, local_path: str) -> None:
-        self._gs_blob().download_to_filename(local_path, raw_download=True)
+    def copy_to(self, local_path: str | Path) -> None:
+        self._gs_blob().download_to_filename(str(local_path), raw_download=True)
 
-    def copy_from(self, local_path: str) -> None:
-        self._gs_blob().upload_from_filename(local_path)
+    def copy_from(self, local_path: str | Path) -> None:
+        self._gs_blob().upload_from_filename(str(local_path))
 
 
 @PathGeneralizer.register
@@ -315,8 +318,8 @@ class FileSystemPath(PathGeneralizer):
     def exists(self) -> bool:
         return os.path.exists(self.path)
 
-    def copy_to(self, local_path: str) -> None:
+    def copy_to(self, local_path: str | Path) -> None:
         shutil.copy(self.path, local_path)
 
-    def copy_from(self, local_path: str) -> None:
+    def copy_from(self, local_path: str | Path) -> None:
         shutil.copy(local_path, self.path)

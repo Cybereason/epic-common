@@ -1,7 +1,7 @@
 import importlib
 
-from types import LambdaType, ModuleType
 from typing import TypeGuard
+from types import LambdaType, ModuleType
 
 
 def is_lambda_function(obj) -> TypeGuard[LambdaType]:

@@ -21,7 +21,7 @@ def pload(filename: GeneralizedPath, fix_imports: bool = True, encoding: str = "
 
     Parameters
     ----------
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -48,7 +48,7 @@ def pdump(data, filename: GeneralizedPath, protocol: int = pickle.HIGHEST_PROTOC
     data : object
         Object to dump.
 
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -73,7 +73,7 @@ def readf(filename: GeneralizedPath, size: int = -1) -> bytes:
 
     Parameters
     ----------
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -98,7 +98,7 @@ def writef(data: bytes | bytearray, filename: GeneralizedPath) -> None:
     data : bytes or bytearray
         The data to write.
 
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -115,7 +115,7 @@ def execfile(filename: GeneralizedPath, global_vars: dict | None = None, local_v
 
     Parameters
     ----------
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path to the file to execute.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -147,7 +147,7 @@ def iterlines(filename: GeneralizedPath, ignore_comments: bool = True) -> Iterab
 
     Parameters
     ----------
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -172,7 +172,7 @@ def jload(filename: GeneralizedPath, **kwargs):
 
     Parameters
     ----------
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 
@@ -197,7 +197,7 @@ def jdump(data, filename: GeneralizedPath, *, indent: int | None = 2, **kwargs) 
     data : object
         Object to dump.
 
-    filename : str or PathGeneralizer
+    filename : str, pathlib.Path or PathGeneralizer
         The path of the file.
         Can also be a path to a remote resource (see PathGeneralizer).
 

@@ -4,8 +4,8 @@ import datetime
 import threading
 
 from decorator import decorate
-from typing import TypeVar, Any
 from contextlib import contextmanager
+from typing import TypeVar, Any, TypeAlias
 from collections.abc import Callable, Iterable
 
 from .general import to_list
@@ -133,8 +133,8 @@ class TimeTracker(dict[Any, list]):
         return self.Tracker(self, prefix)
 
 
-Timestamp = datetime.datetime | datetime.date | str | float | int
-TimeFormat = str | Iterable[str] | None
+Timestamp: TypeAlias = datetime.datetime | datetime.date | str | float | int
+TimeFormat: TypeAlias = str | Iterable[str] | None
 
 
 def to_datetime(timestamp: Timestamp, time_format: TimeFormat = None) -> datetime.datetime:
